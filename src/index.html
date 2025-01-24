@@ -1,17 +1,797 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="styles.css">
-  <title>Vanilla JavaScript App</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@latest/dist/tailwind.min.css" />
+    <ImportMap />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <HeadOutlet />
 </head>
+<nav class="bg-gray-800">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="flex h-16 items-center justify-between">
+          <div class="flex items-center">
+              <div class="flex-shrink-0">
+                  <a href="" class="text-white font-bold text-xl">Video Transcript Analysis</a>
+              </div>
+              <div class="hidden md:block">
+          <div class="md:hidden">
+              <button type="button" @onclick="ToggleMobileMenu"
+                  class="inline-flex items-center justify-center rounded-md bg-gray-800 p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                  <span class="sr-only">Open main menu</span>
+                  <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+              </button>
+          </div>
+      </div>
+  </div>
+</nav>
+<div class="min-h-screen bg-gray-100">
+  <NavMenu />
+  
+  <main class="py-10">
+      <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
 
-<body>
-  <main>
-    <h1>Vanilla JavaScript App</h1>
-  </main>
-</body>
+<div class="p-6 max-w-6xl mx-auto">
+
+    <div class="flex flex-col sm:flex-row gap-4 mb-4">
+        <div>
+            <select id="periodTypeSelect" class="w-48 px-4 py-2 border rounded-md shadow-sm" data-current-view="Year">
+                    <option value="Year">Year</option>
+                    <option value="Quarter">Quarter</option>
+                    <option value="Month">Month</option>
+                    <option value="Week">Week</option>
+                    <option value="Raw">Raw</option>
+            </select>
+        </div>
+        <div class="w-1/3">
+            <input type="text" id="dateRange" class="w-16 px-4 py-2 border rounded-md shadow-sm" placeholder="Select date range..." />
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-4">
+        <div id="metricsChart"></div>
+    </div>
+    <div class="bg-white rounded-lg shadow-lg p-4">
+        <div id="metricsChart"></div>
+    </div>
+
+    <div id="rawDataTable" class="mt-8 hidden">
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <div class="p-4 border-b">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-semibold text-gray-800">Raw Analysis Data</h2>
+                    <div class="relative">
+                        <input type="text"
+                               id="tableSearch"
+                               class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="Search videos...">
+                        <div class="absolute left-3 top-2.5">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="w-1/3 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
+                                Video Name
+                            </th>
+                            <th scope="col" class="w-1/6 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
+                                Date
+                            </th>
+                            <th scope="col" class="w-1/3 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
+                                Metrics
+                            </th>
+                            <th scope="col" class="w-1/6 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Details
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="rawDataTableBody" class="bg-white divide-y divide-gray-200">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                        <select id="tablePageSize" class="mr-2 border rounded-md shadow-sm px-3 py-1">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span class="text-sm text-gray-700">entries per page</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button id="prevPage" class="px-3 py-1 border rounded-md hover:bg-gray-100">&lt;</button>
+                        <span id="pageInfo" class="text-sm text-gray-700">Page 1 of 1</span>
+                        <button id="nextPage" class="px-3 py-1 border rounded-md hover:bg-gray-100">&gt;</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-xl font-semibold mb-4">About This Analysis</h2>
+
+        <div class="space-y-4 text-gray-700">
+            <p class="mb-4">
+                Please take with a gain of salt, as AI analysis may not always capture the full context or intent of the content.<br>
+                This analysis is based on AI-processed transcripts from every available Gamers Nexus video, providing a comprehensive view of content evolution over time. Each data point represents aggregated scores from GPT-4o analysis of video transcripts.
+            </p>
+
+            <div class="mt-6 p-4 bg-gray-100 rounded-lg">
+                <h3 class="text-lg font-semibold mb-2">Methodology</h3>
+                <p class="text-sm">
+                    Each metric is generated using GPT-4o to evaluate each transcript against the specific criteria shown above, producing boolean results that are then aggregated into scores between 0 and 1. Higher scores indicate better alignment with professional content standards.
+                </p>
+            </div>
+
+            <h3 class="text-lg font-semibold mt-6 mb-2">Analysis Metrics & Prompts</h3>
+            <div class="grid grid-cols-1 gap-6">
+                <div class="border rounded-lg p-4 bg-gray-50">
+                    <h4 class="font-medium text-blue-600">Sentiment Analysis</h4>
+                    <p class="text-sm mb-2">Evaluates the overall tone and emotional content.</p>
+                    <div class="bg-gray-100 p-3 rounded text-sm font-mono">
+                        "Analyze the following text for sentiment. Respond with a JSON object where 'isPositive' is a boolean indicating if the sentiment is positive, and 'justification' is a string explaining the reasoning:"
+                    </div>
+                </div>
+
+                <div class="border rounded-lg p-4 bg-gray-50">
+                    <h4 class="font-medium text-orange-600">Bias & Fairness</h4>
+                    <p class="text-sm mb-2">Identifies potential biased or unfair language.</p>
+                    <div class="bg-gray-100 p-3 rounded text-sm font-mono">
+                        "Identify any biased or unfair language in the following text. Respond with a JSON object where 'isBiased' is a boolean indicating if biased or unfair language is present, and 'justification' is a string explaining the reasoning:"
+                    </div>
+                </div>
+
+                <div class="border rounded-lg p-4 bg-gray-50">
+                    <h4 class="font-medium text-pink-600">Factual Accuracy</h4>
+                    <p class="text-sm mb-2">Verifies if claims are supported and accurate.</p>
+                    <div class="bg-gray-100 p-3 rounded text-sm font-mono">
+                        "Check the following text for factual accuracy. Respond with a JSON object where 'isAccurate' is a boolean indicating if all claims are supported and accurate, and 'justification' is a string explaining the reasoning:"
+                    </div>
+                </div>
+
+                <div class="border rounded-lg p-4 bg-gray-50">
+                    <h4 class="font-medium text-indigo-600">Plagiarism</h4>
+                    <p class="text-sm mb-2">Checks for potential instances of copied content.</p>
+                    <div class="bg-gray-100 p-3 rounded text-sm font-mono">
+                        "Check the following text for any instances of plagiarism. Respond with a JSON object where 'isPlagiarized' is a boolean indicating if any content is plagiarized, and 'justification' is a string explaining the reasoning:"
+                    </div>
+                </div>
+
+                <div class="border rounded-lg p-4 bg-gray-50">
+                    <h4 class="font-medium text-green-600">Ethical Concerns</h4>
+                    <p class="text-sm mb-2">Identifies potential ethical issues or sensitive content.</p>
+                    <div class="bg-gray-100 p-3 rounded text-sm font-mono">
+                        "Identify any ethical issues or sensitive content in the following text. Respond with a JSON object where 'hasEthicalIssues' is a boolean indicating if ethical issues or sensitive content are present, and 'justification' is a string explaining the reasoning:"
+                    </div>
+                </div>
+
+                <div class="border rounded-lg p-4 bg-gray-50">
+                    <h4 class="font-medium text-teal-600">Objectivity</h4>
+                    <p class="text-sm mb-2">Analyzes the content's neutrality and objectivity.</p>
+                    <div class="bg-gray-100 p-3 rounded text-sm font-mono">
+                        "Analyze the following text for objectivity and neutrality. Respond with a JSON object where 'isObjective' is a boolean indicating if the text is objective and neutral, and 'justification' is a string explaining the reasoning:"
+                    </div>
+                </div>
+
+                <div class="border rounded-lg p-4 bg-gray-50">
+                    <h4 class="font-medium text-gray-600">Transparency</h4>
+                    <p class="text-sm mb-2">Checks for proper disclosure and transparency.</p>
+                    <div class="bg-gray-100 p-3 rounded text-sm font-mono">
+                        "Check the following text for transparency and proper disclosure. Respond with a JSON object where 'isTransparent' is a boolean indicating if the text includes all necessary disclosures, and 'justification' is a string explaining the reasoning:"
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+</div>
+</main>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    .flatpickr-calendar {
+        min-width: 280px;
+    }
+
+    .flatpickr-current-month {
+        padding: 0 0.5em;
+        font-size: 1em;
+    }
+
+        .flatpickr-current-month .flatpickr-monthDropdown-months {
+            font-size: 1em;
+            padding: 0.2em;
+        }
+
+    .flatpickr-monthDropdown-month {
+        padding: 0.2em;
+    }
+
+    .flatpickr-calendar.rangeMode {
+        min-width: 320px;
+    }
+
+    .flatpickr-input {
+        width: 100%;
+    }
+</style>
+<script>
+    let metricsChart;
+    let currentZoomMin, currentZoomMax;
+    let datePicker;
+
+    function initializeDatePicker(periodType) {
+        const today = new Date();
+        let startDate = new Date();
+
+     switch(periodType) {
+        case 'Year':
+            startDate = new Date(today.getFullYear() - 10, today.getMonth(), today.getDate());
+            break;
+        case 'Quarter':
+            startDate = new Date(today.getFullYear() - 3, today.getMonth(), today.getDate());
+            break;
+        case 'Month':
+            startDate = new Date(today.getFullYear() - 1, today.getMonth() - 6, today.getDate());
+            break;
+        case 'Week':
+            startDate = new Date(today.getFullYear(), today.getMonth() - 6, today.getDate());
+            break;
+        case 'Raw':
+            startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate()-14);
+            break;
+    }
+
+    if (datePicker) {
+        datePicker.destroy();
+    }
+
+    datePicker = flatpickr("#dateRange", {
+        mode: "range",
+        dateFormat: "Y-m-d",
+        defaultDate: [startDate, today],
+        maxDate: today,
+        onChange: function(selectedDates) {
+            if (selectedDates.length === 2) {
+                updateChart();
+            }
+        }
+    });
+
+     datePicker.setDate([startDate, today], true);
+     }
+    async function loadData(periodType, dateFrom = null, dateTo = null) {
+        let url;
+        if (dateFrom && dateTo) {
+            url = `https://analysis.datadisruptor.com/api/DataPoint/filterDateRange?dateFrom=${dateFrom}&dateTo=${dateTo}&periodType=${periodType}`;
+        } else {
+            url = `https://analysis.datadisruptor.com/api/DataPoint/getAllByType?periodType=${periodType}`;
+        }
+        const response = await fetch(url);
+        return await response.json();
+    }
+
+    function createChart(data) {
+        const sortedData = [...data]
+            .filter(d => parseInt(d.period) > 2011)
+            .sort((a, b) => parseInt(a.period) - parseInt(b.period));
+
+        const periods = sortedData.map(d => d.period);
+        const periodType = document.getElementById('periodTypeSelect').value;
+        const isRawMode = periodType === 'Raw';
+
+       const options = {
+        series: [
+            {
+                name: 'Sentiment',
+                data: sortedData.map(d => isRawMode ? d.sentiment : d.averageSentiment)
+            },
+            {
+                name: 'Bias & Fairness',
+                data: sortedData.map(d => isRawMode ? d.biasAndFairness : d.averageBiasAndFairness)
+            },
+            {
+                name: 'Factual Accuracy',
+                data: sortedData.map(d => isRawMode ? d.factualAccuracy : d.averageFactualAccuracy)
+            },
+            {
+                name: 'Plagiarism',
+                data: sortedData.map(d => isRawMode ? d.plagiarism : d.averagePlagiarism)
+            },
+            {
+                name: 'Ethical Concerns',
+                data: sortedData.map(d => isRawMode ? d.ethicalConcerns : d.averageEthicalConcerns)
+            },
+            {
+                name: 'Objectivity',
+                data: sortedData.map(d => isRawMode ? d.objectivity : d.averageObjectivity)
+            },
+            {
+                name: 'Transparency',
+                data: sortedData.map(d => isRawMode ? d.transparency : d.averageTransparency)
+            }
+        ],
+            chart: {
+                animations: {
+                  enabled: true
+                },
+                loading: {
+                    hiddenTitle: false,
+                    text: 'Loading data...'
+                },
+                height: 500,
+                type: 'line',
+                zoom: {
+                    enabled: true,
+                    type: 'x',
+                    autoScaleYaxis: true
+                },
+                toolbar: {
+                    show: true,
+                    tools: {
+                        download: true,
+                        selection: true,
+                        zoom: true,
+                        zoomin: true,
+                        zoomout: true,
+                        pan: true,
+                        reset: true
+                    }
+                },
+
+                    beforeResetZoom: async function() {
+                        const select = document.getElementById('periodTypeSelect');
+                        // Reset to yearly view
+                        select.value = 'Year';
+                        select.setAttribute('data-current-view', 'Year');
+                        await updateChart();
+                    }
+                },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                curve: 'straight',
+                width: 2,
+                lineCap: 'round', // Added for better line endings
+                dashArray: 0 // Ensures solid lines with no breaks
+            },
+            colors: [
+                '#4dc9f6', // Sentiment
+                '#f67019', // Bias & Fairness
+                '#f53794', // Factual Accuracy
+                '#537bc4', // Plagiarism
+                '#acc236', // Ethical Concerns
+                '#166a8f', // Clarity
+                '#00a950', // Objectivity
+                '#58595b', // Transparency
+                '#8549ba'  // Accountability
+            ],
+            title: {
+                text: 'Analysis Metrics Over Time',
+                align: 'center'
+            },
+            grid: {
+                borderColor: '#e7e7e7',
+                row: {
+                    colors: ['#f3f3f3', 'transparent'],
+                    opacity: 0.5
+                }
+            },
+            markers: {
+                size: 0, // Changed from 1 to 0 to remove point markers
+                hover: {
+                    size: 5, // Shows markers only on hover
+                    sizeOffset: 3
+                }
+            },
+            xaxis: {
+                type: 'category',
+                categories: periods,
+                title: {
+                    text: 'Year'
+                },
+                labels: {
+                    rotate: -45,
+                    rotateAlways: false
+                }
+            },
+            yaxis: {
+            title: {
+                    text: 'Score'
+                     },
+                     min: 0,
+                     max: 1,
+                     labels: {
+                         formatter: function (value) {
+                             return Number(value).toPrecision(2);
+                    }
+                }
+            },
+            legend: {
+                position: 'bottom',
+                horizontalAlign: 'center',
+                floating: false,
+                offsetY: 0,
+                offsetX: 0
+            },
+            tooltip: {
+                shared: true,
+                intersect: false,
+                y: {
+                    formatter: function (value) {
+                        return value.toFixed(3);
+                    }
+                }
+            }
+        };
+
+      if (metricsChart) {
+            metricsChart.destroy();
+        }
+
+        metricsChart = new ApexCharts(document.querySelector("#metricsChart"), options);
+        metricsChart.render();
+    }
+       function updateDateRange(periodType) {
+        const dateFrom = document.getElementById('dateFrom');
+        const dateTo = document.getElementById('dateTo');
+        const today = new Date();
+        let startDate = new Date();
+
+        switch(periodType) {
+            case 'Year':
+                startDate = new Date(today.getFullYear() - 10, today.getMonth(), today.getDate());
+                break;
+            case 'Quarter':
+                startDate = new Date(today.getFullYear() - 3, today.getMonth(), today.getDate());
+                break;
+            case 'Month':
+                startDate = new Date(today.getFullYear() - 1, today.getMonth() - 6, today.getDate());
+                break;
+            case 'Week':
+                startDate = new Date(today.getFullYear(), today.getMonth() - 6, today.getDate());
+                break;
+        }
+
+        // Format dates properly
+        dateFrom.value = startDate.toISOString().substr(0, 10);
+        dateTo.value = today.toISOString().substr(0, 10);
+
+        // Trigger change events
+        dateFrom.dispatchEvent(new Event('change'));
+        dateTo.dispatchEvent(new Event('change'));
+    }
+
+
+    async function updateChart() {
+        const select = document.getElementById('periodTypeSelect');
+        const periodType = select.value;
+        const selectedDates = datePicker.selectedDates;
+
+        // Show loading state if chart exists
+        if (metricsChart) {
+            metricsChart.updateOptions({
+                chart: {
+                    animations: {
+                        enabled: false
+                    }
+                }
+            });
+            metricsChart.showLoading();
+        }
+
+        try {
+            let data;
+            if (currentZoomMin && currentZoomMax && periodType === 'Month') {
+                data = await loadData(periodType,
+                    currentZoomMin.toISOString().split('T')[0],
+                    currentZoomMax.toISOString().split('T')[0]);
+            } else if (selectedDates.length === 2) {
+                data = await loadData(periodType,
+                    selectedDates[0].toISOString().split('T')[0],
+                    selectedDates[1].toISOString().split('T')[0]);
+            }
+
+            if (periodType === 'Raw') {
+                updateTable(data);
+            } else {
+                document.getElementById('rawDataTable').classList.add('hidden');
+            }
+
+            createChart(data);
+        } finally {
+            // Re-enable animations and hide loading state for the new chart
+            if (metricsChart) {
+                metricsChart.updateOptions({
+                    chart: {
+                        animations: {
+                            enabled: true
+                        }
+                    }
+                });
+                metricsChart.hideLoading();
+            }
+        }
+    }
+
+
+    let tableData = [];
+    let currentPage = 1;
+    let pageSize = 10;
+    let sortColumn = 'videoDate';
+    let sortDirection = 'desc';
+
+    function updateTable(data) {
+        const tableDiv = document.getElementById('rawDataTable');
+        if (!data || data.length === 0) {
+            tableDiv.classList.add('hidden');
+            return;
+        }
+
+        tableDiv.classList.remove('hidden');
+        tableData = data;
+        renderTable();
+    }
+
+        function renderTable() {
+        const tbody = document.getElementById('rawDataTableBody');
+        const filteredData = filterData();
+        const sortedData = sortData(filteredData);
+        const paginatedData = paginateData(sortedData);
+
+        tbody.innerHTML = paginatedData.map((item, index) => `
+            <tr class="hover:bg-gray-50 cursor-pointer" onclick="toggleDetails(${index})">
+                <td class="w-1/3 px-6 py-4">
+                    <div class="space-y-2 text-sm">
+                        <a href="${item.videoURL}"
+                           target="_blank"
+                           class="text-blue-600 hover:underline"
+                           title="${item.videoName}"
+                           onclick="event.stopPropagation()">
+                            ${item.videoName}
+                        </a>
+                    </div>
+                </td>
+                <td class="w-1/6 px-6 py-4 whitespace-nowrap">
+                    ${new Date(item.videoDate).toLocaleDateString()}
+                </td>
+                <td class="w-1/3 px-6 py-4">
+                    <div class="space-y-2">
+                        ${getMetricsHTML(item)}
+                    </div>
+                </td>
+                <td class="w-1/6 px-6 py-4">
+                    <button class="text-blue-600 hover:text-blue-800">
+                        View Details
+                        <svg class="inline-block w-4 h-4 ml-1 transform transition-transform duration-200" id="arrow-${index}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                </td>
+            </tr>
+            <tr id="details-${index}" class="hidden bg-gray-50">
+                <td colspan="4" class="px-6 py-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${getDetailedJustificationsHTML(item)}
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+
+        updatePagination(filteredData.length);
+    }
+
+    function getMetricsHTML(item) {
+        const metrics = [
+            { name: 'Sentiment', value: item.sentiment, color: '#4dc9f6' },
+            { name: 'Bias & Fairness', value: item.biasAndFairness, color: '#f67019' },
+            { name: 'Factual Accuracy', value: item.factualAccuracy, color: '#f53794' },
+            { name: 'Plagiarism', value: item.plagiarism, color: '#537bc4' },
+            { name: 'Ethical Concerns', value: item.ethicalConcerns, color: '#acc236' },
+            { name: 'Objectivity', value: item.objectivity, color: '#00a950' },
+            { name: 'Transparency', value: item.transparency, color: '#58595b' }
+        ];
+
+         return metrics
+        .map(m => `
+            <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full" style="background-color: ${m.color}"></div>
+                <span class="${m.value === 0 ? 'text-gray-400' : ''}">${m.name}: ${m.value}</span>
+            </div>
+        `).join('');
+    }
+        function filterData() {
+        const searchTerm = document.getElementById('tableSearch').value.toLowerCase();
+        if (!searchTerm) return tableData;
+
+        return tableData.filter(item =>
+            item.videoName.toLowerCase().includes(searchTerm) ||
+            new Date(item.videoDate).toLocaleDateString().toLowerCase().includes(searchTerm) ||
+            item.sentimentJustification?.toLowerCase().includes(searchTerm) ||
+            item.biasAndFairnessJustification?.toLowerCase().includes(searchTerm) ||
+            item.factualAccuracyJustification?.toLowerCase().includes(searchTerm) ||
+            item.plagiarismJustification?.toLowerCase().includes(searchTerm) ||
+            item.ethicalConcernsJustification?.toLowerCase().includes(searchTerm) ||
+            item.objectivityJustification?.toLowerCase().includes(searchTerm) ||
+            item.transparencyJustification?.toLowerCase().includes(searchTerm)
+        );
+    }
+
+    function sortData(data) {
+        return [...data].sort((a, b) => {
+            const aValue = a[sortColumn];
+            const bValue = b[sortColumn];
+
+            if (typeof aValue === 'string') {
+                return sortDirection === 'asc'
+                    ? aValue.localeCompare(bValue)
+                    : bValue.localeCompare(aValue);
+            }
+
+            return sortDirection === 'asc'
+                ? aValue - bValue
+                : bValue - aValue;
+        });
+    }
+
+    function paginateData(data) {
+        const start = (currentPage - 1) * pageSize;
+        const end = start + pageSize;
+        return data.slice(start, end);
+    }
+
+    function updatePagination(totalItems) {
+        const maxPage = Math.ceil(totalItems / pageSize);
+        const pageInfo = document.getElementById('pageInfo');
+        pageInfo.textContent = `Page ${currentPage} of ${maxPage}`;
+
+        const prevButton = document.getElementById('prevPage');
+        const nextButton = document.getElementById('nextPage');
+
+        prevButton.disabled = currentPage === 1;
+        nextButton.disabled = currentPage === maxPage;
+
+        prevButton.classList.toggle('opacity-50', currentPage === 1);
+        nextButton.classList.toggle('opacity-50', currentPage === maxPage);
+    }
+
+    // Add click handlers for column sorting
+    document.querySelectorAll('th.cursor-pointer').forEach(th => {
+        th.addEventListener('click', () => {
+            const column = th.textContent.trim().toLowerCase().replace(/\s+/g, '');
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+            renderTable();
+        });
+    });
+
+        function getDetailedJustificationsHTML(item) {
+        const justifications = [
+            { name: 'Sentiment', value: item.sentimentJustification, color: '#4dc9f6' },
+            { name: 'Bias & Fairness', value: item.biasAndFairnessJustification, color: '#f67019' },
+            { name: 'Factual Accuracy', value: item.factualAccuracyJustification, color: '#f53794' },
+            { name: 'Plagiarism', value: item.plagiarismJustification, color: '#537bc4' },
+            { name: 'Ethical Concerns', value: item.ethicalConcernsJustification, color: '#acc236' },
+            { name: 'Objectivity', value: item.objectivityJustification, color: '#00a950' },
+            { name: 'Transparency', value: item.transparencyJustification, color: '#58595b' }
+        ];
+
+        return justifications
+            .filter(j => j.value)
+            .map(j => `
+                <div class="p-4 border rounded-lg bg-white">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-3 h-3 rounded-full" style="background-color: ${j.color}"></div>
+                        <div class="font-medium">${j.name}</div>
+                    </div>
+                    <div class="text-gray-600 text-sm">${j.value}</div>
+                </div>
+            `).join('');
+    }
+
+
+    // Add this function to handle row expansion
+    function toggleDetails(index) {
+        const detailsRow = document.getElementById(`details-${index}`);
+        const arrow = document.getElementById(`arrow-${index}`);
+
+        // Close all other open rows
+        document.querySelectorAll('[id^="details-"]').forEach(row => {
+            if (row.id !== `details-${index}` && !row.classList.contains('hidden')) {
+                row.classList.add('hidden');
+                const otherArrow = document.getElementById(`arrow-${row.id.split('-')[1]}`);
+                otherArrow?.classList.remove('rotate-180');
+            }
+        });
+
+        // Toggle current row
+        detailsRow.classList.toggle('hidden');
+        arrow.classList.toggle('rotate-180');
+    }
+
+    document.getElementById('tableSearch').addEventListener('input', renderTable);
+    document.getElementById('tablePageSize').addEventListener('change', e => {
+        pageSize = parseInt(e.target.value);
+        currentPage = 1;
+        renderTable();
+    });
+    document.getElementById('prevPage').addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+        }
+    });
+    document.getElementById('nextPage').addEventListener('click', () => {
+        const filteredData = filterData();
+        const maxPage = Math.ceil(filteredData.length / pageSize);
+        if (currentPage < maxPage) {
+            currentPage++;
+            renderTable();
+        }
+    });
+
+    async function updateChart() {
+        const select = document.getElementById('periodTypeSelect');
+        const periodType = select.value;
+        const selectedDates = datePicker.selectedDates;
+
+        let data;
+        if (currentZoomMin && currentZoomMax && periodType === 'Month') {
+            data = await loadData(periodType,
+                currentZoomMin.toISOString().split('T')[0],
+                currentZoomMax.toISOString().split('T')[0]);
+        } else if (selectedDates.length === 2) {
+            data = await loadData(periodType,
+                selectedDates[0].toISOString().split('T')[0],
+                selectedDates[1].toISOString().split('T')[0]);
+        }
+
+        if (periodType === 'Raw') {
+            updateTable(data);
+        } else {
+            document.getElementById('rawDataTable').classList.add('hidden');
+        }
+
+        createChart(data);
+    }
+
+         document.addEventListener('DOMContentLoaded', async () => {
+                 const select = document.getElementById('periodTypeSelect');
+                window.toggleDetails = toggleDetails;
+
+                initializeDatePicker('Year');
+
+         select.addEventListener('change', (e) => {
+            const periodType = e.target.value;
+            initializeDatePicker(periodType);
+        });
+     });
+
+</script>
 
 </html>
