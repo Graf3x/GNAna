@@ -692,32 +692,84 @@ function getMetricExamplesHTML(examples, metricId) {
 
 function getMetricsHTML(item) {
     return `
-        <div class="grid grid-cols-1 gap-4">
-            ${Object.entries(METRIC_DESCRIPTIONS).map(([key, desc]) => {
+        <div class="space-y-4">
+            ${Object.entries(METRIC_DESCRIPTIONS).map(([key, desc], index) => {
                 const baseKey = key.charAt(0).toLowerCase() + key.slice(1);
                 const value = item[baseKey];
                 const examples = item[`${baseKey}JustificationExamples`];
-                const metricId = `${item.id}-${baseKey}`;
+                const detailId = `details-${index + 1}`;
                 
                 return `
                     <div class="border rounded-lg p-4 bg-gray-50">
-                        <div class="flex justify-between items-start">
+                        <div class="flex justify-between items-center cursor-pointer" 
+                             onclick="toggleDetails('${detailId}')">
                             <div>
-                                <h4 class="font-medium text-${desc.color}-600">
-                                    ${desc.title}
-                                </h4>
+                                <h4 class="font-medium text-${desc.color}-600">${desc.title}</h4>
                                 <p class="text-sm text-gray-600">
                                     ${typeof value === 'number' ? value.toFixed(2) : 'N/A'}
                                 </p>
                             </div>
+                            <svg id="arrow-${detailId}" 
+                                 class="w-4 h-4 transform transition-transform duration-200" 
+                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" 
+                                      stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
                         </div>
-                        ${getMetricExamplesHTML(examples, metricId)}
+                        <div id="${detailId}" class="hidden mt-4 space-y-4">
+                            ${getDetailsContent(item, baseKey, examples)}
+                        </div>
                     </div>
                 `;
             }).join('')}
         </div>
     `;
 }
+
+function getDetailsContent(item, baseKey, examples) {
+    let content = '';
+    
+    // Add justification if exists
+    if (item[`${baseKey}Justification`]) {
+        content += `
+            <div class="text-sm text-gray-700 p-3 bg-gray-50 rounded">
+                ${item[`${baseKey}Justification`]}
+            </div>`;
+    }
+    
+    // Add examples if they exist
+    if (examples && examples !== '[]') {
+        try {
+            const parsedExamples = JSON.parse(examples);
+            if (parsedExamples.length > 0) {
+                content += `
+                    <div class="mt-3">
+                        <h5 class="text-sm font-medium mb-2">Examples:</h5>
+                        <div class="space-y-2">
+                            ${parsedExamples.map(example => `
+                                <div class="text-sm bg-white p-2 rounded border">
+                                    ${example}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>`;
+            }
+        } catch (e) {
+            console.error('Error parsing examples:', e);
+        }
+    }
+    
+    return content;
+}
+
+function toggleDetails(detailId) {
+    const content = document.getElementById(detailId);
+    const arrow = document.getElementById(`arrow-${detailId}`);
+    
+    content.classList.toggle('hidden');
+    arrow.classList.toggle('rotate-180');
+}
+
         function filterData() {
         const searchTerm = document.getElementById('tableSearch').value.toLowerCase();
         if (!searchTerm) return tableData;
