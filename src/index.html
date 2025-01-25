@@ -632,23 +632,86 @@
         updatePagination(filteredData.length);
     }
 
-    function getMetricsHTML(item) {
+    const METRIC_DESCRIPTIONS = {
+    sentiment: { color: 'blue', title: 'Sentiment Analysis' },
+    biasAndFairness: { color: 'orange', title: 'Bias & Fairness' },
+    factualAccuracy: { color: 'pink', title: 'Factual Accuracy' },
+    plagiarism: { color: 'purple', title: 'Plagiarism' },
+    ethicalConcerns: { color: 'green', title: 'Ethical Concerns' },
+    clarity: { color: 'indigo', title: 'Clarity' },
+    objectivity: { color: 'yellow', title: 'Objectivity' },
+    transparency: { color: 'red', title: 'Transparency' },
+    accountability: { color: 'gray', title: 'Accountability' }
+};
+
+function toggleExamples(buttonId) {
+    const content = document.getElementById(`content-${buttonId}`);
+    const arrow = document.getElementById(`arrow-${buttonId}`);
+    content.classList.toggle('hidden');
+    arrow.classList.toggle('rotate-180');
+}
+
+function getMetricExamplesHTML(examples, metricId) {
+    if (!examples || examples === '[]') return '';
+    
+    try {
+        const parsedExamples = JSON.parse(examples);
+        if (!parsedExamples.length) return '';
+
+        return `
+            <div class="mt-2">
+                <button 
+                    onclick="toggleExamples('${metricId}')"
+                    class="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                    <svg id="arrow-${metricId}" 
+                         class="w-4 h-4 transform transition-transform duration-200" 
+                         fill="none" 
+                         stroke="currentColor" 
+                         viewBox="0 0 24 24">
+                        <path stroke-linecap="round" 
+                              stroke-linejoin="round" 
+                              stroke-width="2" 
+                              d="M19 9l-7 7-7-7" />
+                    </svg>
+                    Examples (${parsedExamples.length})
+                </button>
+                <div id="content-${metricId}" 
+                     class="hidden mt-2 space-y-2 transition-all duration-200">
+                    ${parsedExamples.map(example => `
+                        <div class="text-sm bg-gray-50 p-2 rounded border">
+                            ${example}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>`;
+    } catch (e) {
+        console.error('Error parsing examples:', e);
+        return '';
+    }
+}
+
+function getMetricsHTML(item) {
     return `
         <div class="grid grid-cols-1 gap-4">
             ${Object.entries(METRIC_DESCRIPTIONS).map(([key, desc]) => {
                 const baseKey = key.charAt(0).toLowerCase() + key.slice(1);
                 const value = item[baseKey];
                 const examples = item[`${baseKey}JustificationExamples`];
+                const metricId = `${item.id}-${baseKey}`;
                 
                 return `
                     <div class="border rounded-lg p-4 bg-gray-50">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h4 class="font-medium text-${desc.color}-600">${desc.title}</h4>
-                                <p class="text-sm text-gray-600">${value.toFixed(2)}</p>
+                                <h4 class="font-medium text-${desc.color}-600">
+                                    ${desc.title}
+                                </h4>
+                                <p class="text-sm text-gray-600">
+                                    ${typeof value === 'number' ? value.toFixed(2) : 'N/A'}
+                                </p>
                             </div>
                         </div>
-                        ${getMetricExamplesHTML(examples)}
+                        ${getMetricExamplesHTML(examples, metricId)}
                     </div>
                 `;
             }).join('')}
