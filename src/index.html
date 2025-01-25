@@ -396,8 +396,8 @@
             stroke: {
                 curve: 'straight',
                 width: 2,
-                lineCap: 'round', // Added for better line endings
-                dashArray: 0 // Ensures solid lines with no breaks
+                lineCap: 'round', 
+                dashArray: 0 
             },
             colors: [
                 '#4dc9f6', // Sentiment
@@ -422,9 +422,9 @@
                 }
             },
             markers: {
-                size: 0, // Changed from 1 to 0 to remove point markers
+                size: 0, 
                 hover: {
-                    size: 5, // Shows markers only on hover
+                    size: 5, 
                     sizeOffset: 3
                 }
             },
@@ -504,11 +504,11 @@
                 break;
         }
 
-        // Format dates properly
+      
         dateFrom.value = startDate.toISOString().substr(0, 10);
         dateTo.value = today.toISOString().substr(0, 10);
 
-        // Trigger change events
+        
         dateFrom.dispatchEvent(new Event('change'));
         dateTo.dispatchEvent(new Event('change'));
     }
@@ -519,7 +519,6 @@
         const periodType = select.value;
         const selectedDates = datePicker.selectedDates;
 
-        // Show loading state if chart exists
         if (metricsChart) {
             metricsChart.updateOptions({
                 chart: {
@@ -551,7 +550,7 @@
 
             createChart(data);
         } finally {
-            // Re-enable animations and hide loading state for the new chart
+           
             if (metricsChart) {
                 metricsChart.updateOptions({
                     chart: {
@@ -739,36 +738,53 @@
         { name: 'Transparency', value: item.transparencyJustification, color: '#58595b', examples: JSON.parse(item.transparencyJustificationExamples || '[]') }
     ];
 
+    let exampleCounter = 0;
     return justifications
         .filter(j => j.value)
-        .map(j => `
-            <div class="p-4 border rounded-lg bg-white">
-                <div class="flex items-center gap-2 mb-2">
-                    <div class="w-3 h-3 rounded-full" style="background-color: ${j.color}"></div>
-                    <div class="font-medium">${j.name}</div>
-                </div>
-                <div class="text-gray-600 text-sm">${j.value}</div>
-                ${j.examples.length > 0 ? `
-                    <div class="mt-3">
-                        <div class="font-medium text-sm text-gray-700 mb-1">Examples:</div>
-                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
-                            ${j.examples.map(example => `
-                                <li>${example}</li>
-                            `).join('')}
-                        </ul>
+        .map(j => {
+            const hasExamples = j.examples.length > 0;
+            const exampleId = `example-${exampleCounter++}`;
+            return `
+                <div class="p-4 border rounded-lg bg-white">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-3 h-3 rounded-full" style="background-color: ${j.color}"></div>
+                        <div class="font-medium">${j.name}</div>
                     </div>
-                ` : ''}
-            </div>
-        `).join('');
+                    <div class="text-gray-600 text-sm">${j.value}</div>
+                    ${hasExamples ? `
+                        <div class="mt-3">
+                            <button onclick="toggleExamples('${exampleId}')" class="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800">
+                                <svg id="arrow-${exampleId}" class="w-4 h-4 transform rotate-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                                Show Examples (${j.examples.length})
+                            </button>
+                            <div id="${exampleId}" class="hidden mt-2">
+                                <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                                    ${j.examples.map(example => `<li>${example}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
 }
 
 
-    // Add this function to handle row expansion
+function toggleExamples(id) {
+    const content = document.getElementById(id);
+    const arrow = document.getElementById(`arrow-${id}`);
+    content.classList.toggle('hidden');
+    arrow.style.transform = content.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+
+    
     function toggleDetails(index) {
         const detailsRow = document.getElementById(`details-${index}`);
         const arrow = document.getElementById(`arrow-${index}`);
 
-        // Close all other open rows
+     
         document.querySelectorAll('[id^="details-"]').forEach(row => {
             if (row.id !== `details-${index}` && !row.classList.contains('hidden')) {
                 row.classList.add('hidden');
@@ -777,7 +793,7 @@
             }
         });
 
-        // Toggle current row
+       
         detailsRow.classList.toggle('hidden');
         arrow.classList.toggle('rotate-180');
     }
