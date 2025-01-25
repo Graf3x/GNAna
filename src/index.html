@@ -394,34 +394,10 @@
                 enabled: false
             },
             stroke: {
-                curve: 'smooth',
-                width: 2
-            },
-            annotations: {
-                yaxis: [{
-                    y: 0.5,
-                    borderColor: '#999',
-                    label: {
-                        text: 'Threshold'
-                    }
-                }]
-            },
-            plotOptions: {
-                line: {
-                    trendlines: [{
-                        type: 'linear',
-                        name: 'Trend',
-                        opacity: 0.8,
-                        width: 2
-                    }]
-                }
-            },
-            stroke: {
-                curve: ['smooth', 'straight'],
-                width: [2, 1]
-            },
-            markers: {
-                size: [4, 0]
+                curve: 'straight',
+                width: 2,
+                lineCap: 'round', // Added for better line endings
+                dashArray: 0 // Ensures solid lines with no breaks
             },
             colors: [
                 '#4dc9f6', // Sentiment
