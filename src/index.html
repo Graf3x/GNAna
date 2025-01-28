@@ -55,9 +55,6 @@
     <div class="bg-white rounded-lg shadow-lg p-4">
         <div id="metricsChart"></div>
     </div>
-    <div class="bg-white rounded-lg shadow-lg p-4">
-        <div id="metricsChart"></div>
-    </div>
 
     <div id="rawDataTable" class="mt-8 hidden">
         <div class="bg-white shadow-md rounded-lg overflow-hidden">
@@ -145,7 +142,7 @@
                 <p>Evaluations are supported by specific examples extracted from the content, providing context for each assessment. The analysis uses a combination of automated tools and expert review to ensure accuracy and consistency in the evaluation process.</p>
         
                 <p>Toggle between views using the mode selector above to explore different aspects of the analysis. Use the search and filter options to focus on specific content or metrics of interest.</p>
-                <div id="methodology" class="bg-white p-2 md:p-6 rounded-lg shadow-lg mt-6">
+                <div id="methodology" class="bg-white p-2 md:p-6 rounded-lg shadow-lg mt-6 pb-4">
                     <h2 class="text-2xl font-bold mb-4">Methodology</h2>
                     <div class="space-y-4 text-gray-600">
                         <p>This analysis employs a two-stage AI processing pipeline:</p>
@@ -153,7 +150,7 @@
                         <div class="pl-4 space-y-4">
                             <div>
                                 <h3 class="font-medium text-gray-800 mb-2">Stage 1: Deep Analysis</h3>
-                                <p>Using a locally hosted DeepSeek Reasoning-1 14B model, each video transcript undergoes detailed analysis through Chain of Thought (COT) reasoning. This model excels at:</p>
+                                <p>Using a locally hosted DeepSeek Reasoning R1:14B model, each video transcript undergoes detailed analysis through Chain of Thought (COT) reasoning. This model excels at:</p>
                                 <ul class="list-disc pl-8 mt-2">
                                     <li>Complex content evaluation</li>
                                     <li>Multi-step reasoning</li>
@@ -164,7 +161,7 @@
                 
                             <div>
                                 <h3 class="font-medium text-gray-800 mb-2">Stage 2: Structured Output</h3>
-                                <p>The COT results are processed by GPT-4 Optimized Mini to:</p>
+                                <p>The COT results are processed by GPT-4o-Mini to:</p>
                                 <ul class="list-disc pl-8 mt-2">
                                     <li>Convert reasoning into structured JSON</li>
                                     <li>Extract quantifiable metrics</li>
