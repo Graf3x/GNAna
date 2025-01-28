@@ -145,12 +145,36 @@
                 <p>Evaluations are supported by specific examples extracted from the content, providing context for each assessment. The analysis uses a combination of automated tools and expert review to ensure accuracy and consistency in the evaluation process.</p>
         
                 <p>Toggle between views using the mode selector above to explore different aspects of the analysis. Use the search and filter options to focus on specific content or metrics of interest.</p>
-        <div class="mt-6 p-4 bg-gray-100 rounded-lg">
-            <h3 class="text-lg font-semibold mb-2">Methodology</h3>
-            <p class="text-sm">
-                Each metric is generated using DeepSeek to evaluate transcripts against specific criteria, producing scores between -1 and 1. Higher scores indicate better alignment with professional content standards.
-            </p>
-        </div>
+                <div id="methodology" class="bg-white p-2 md:p-6 rounded-lg shadow-lg mt-6">
+                    <h2 class="text-2xl font-bold mb-4">Methodology</h2>
+                    <div class="space-y-4 text-gray-600">
+                        <p>This analysis employs a two-stage AI processing pipeline:</p>
+                        
+                        <div class="pl-4 space-y-4">
+                            <div>
+                                <h3 class="font-medium text-gray-800 mb-2">Stage 1: Deep Analysis</h3>
+                                <p>Using a locally hosted DeepSeek Reasoning-1 14B model, each video transcript undergoes detailed analysis through Chain of Thought (COT) reasoning. This model excels at:</p>
+                                <ul class="list-disc pl-8 mt-2">
+                                    <li>Complex content evaluation</li>
+                                    <li>Multi-step reasoning</li>
+                                    <li>Contextual understanding</li>
+                                    <li>Example identification</li>
+                                </ul>
+                            </div>
+                
+                            <div>
+                                <h3 class="font-medium text-gray-800 mb-2">Stage 2: Structured Output</h3>
+                                <p>The COT results are processed by GPT-4 Optimized Mini to:</p>
+                                <ul class="list-disc pl-8 mt-2">
+                                    <li>Convert reasoning into structured JSON</li>
+                                    <li>Extract quantifiable metrics</li>
+                                    <li>Organize supporting examples</li>
+                                    <li>Generate consistent scoring</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
         <h3 class="text-lg font-semibold mt-6 mb-2">Analysis Metrics & Prompts</h3>
         <div class="grid grid-cols-1 gap-6">
