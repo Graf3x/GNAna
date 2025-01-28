@@ -334,9 +334,9 @@
     async function loadData(periodType, dateFrom = null, dateTo = null) {
         let url;
         if (dateFrom && dateTo) {
-            url = `https://analysis.datadisruptor.com/api/DataPoint/filterDeepDateRange?dateFrom=${dateFrom}&dateTo=${dateTo}&periodType=${periodType}`;
+            url = `https://analysis.datadisruptor.com/api/DeepDataPoint/filterDeepDateRange?dateFrom=${dateFrom}&dateTo=${dateTo}&periodType=${periodType}`;
         } else {
-            url = `https://analysis.datadisruptor.com/api/DataPoint/getAllDeepByType?periodType=${periodType}`;
+            url = `https://analysis.datadisruptor.com/api/DeepDataPoint/getAllDeepByType?periodType=${periodType}`;
         }
         const response = await fetch(url);
         return await response.json();
